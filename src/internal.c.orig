@@ -10066,7 +10066,7 @@ int InitSigPkCb(WOLFSSL* ssl, SignatureCtx* sigCtx)
 
 
 #if !defined(NO_WOLFSSL_CLIENT) || !defined(WOLFSSL_NO_CLIENT_AUTH)
-void DoCertFatalAlert(WOLFSSL* ssl, int ret)
+static void DoCertFatalAlert(WOLFSSL* ssl, int ret)
 {
     int alertWhy;
     if (ssl == NULL || ret == 0) {
@@ -29319,8 +29319,7 @@ static int DoSessionTicket(WOLFSSL* ssl, const byte* input, word32* inOutIdx,
                 }
 
             #if !defined(NO_CERTS) && !defined(WOLFSSL_NO_CLIENT_AUTH)
-                if (ssl->options.verifyPeer &&
-                         (ssl->options.mutualAuth || ssl->options.failNoCert)) {
+                if (ssl->options.verifyPeer && ssl->options.failNoCert) {
                     if (!ssl->options.havePeerCert) {
                         WOLFSSL_MSG("client didn't present peer cert");
                         ERROR_OUT(NO_PEER_CERT, exit_dcke);
@@ -29331,7 +29330,7 @@ static int DoSessionTicket(WOLFSSL* ssl, const byte* input, word32* inOutIdx,
                     if (!ssl->options.havePeerCert &&
                                              !ssl->options.usingPSK_cipher) {
                         WOLFSSL_MSG("client didn't present peer cert");
-                        ERROR_OUT(NO_PEER_CERT, exit_dcke);
+                        return NO_PEER_CERT;
                     }
                 }
             #endif /* !NO_CERTS && !WOLFSSL_NO_CLIENT_AUTH */
